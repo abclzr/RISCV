@@ -1,12 +1,17 @@
 //
-// Created by cetc001 on 2019/7/3.
+// Created by abclzr on 2019/7/3.
 //
 
 #ifndef RISCV_CONFIGURE_H
 #define RISCV_CONFIGURE_H
 
-const int MAX_ADDRESS = 8192;
+#include <cstdint>
+#include <cstring>
 
-typedef int32_t address;
+const uint32_t MAX_ADDRESS = 8192;
+
+typedef uint32_t mem_address;
+
+typedef uint8_t reg_address;
 
 #endif //RISCV_CONFIGURE_H

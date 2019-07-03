@@ -1,8 +1,10 @@
-# cmake_minimum_required(VERSION <specify CMake version here>)
+cmake_minimum_required(VERSION 3.0)
 project(RISCV)
 
 set(CMAKE_CXX_STANDARD 14)
 
 include_directories(./include)
 
-add_executable(RISCV main.cpp src/Register.cpp include/Register.h include/configure.h)
+aux_source_directory(./src abclzr_src)
+
+add_executable(code main.cpp ${abclzr_src})
