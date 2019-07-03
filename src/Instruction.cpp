@@ -14,14 +14,15 @@ Instruction::Instruction(uint32_t i) : ins(i)
 //type
 //opcode
 //rd, rs1, rs2
-//imm
+//imm, shamt
 void Instruction::analysize(uint32_t i)
 {
     opcode = get_interval(i, 0, 6);
     rd = get_interval(i, 7, 11);
     uint8_t i12 = get_interval(i, 12, 14);
     rs1 = get_interval(i, 15, 19);
-    rs2 = get_interval(i, 20, 24);
+    shamt = rs2 = get_interval(i, 20, 24);
+    imm = 0;
     switch (opcode) {
     case 0x37: //0110111
         type = LUI;
@@ -87,8 +88,8 @@ void Instruction::analysize(uint32_t i)
         case 4: type = XORI; break;
         case 6: type = ORI; break;
         case 7: type = ANDI; break;
-        case 1: type = SLLI; imm = rs2; break;
-        case 5: imm = rs2; get_interval(i, 30, 30) == 0 ? type = SRLI : type = SRAI; break;
+        case 1: type = SLLI; break;
+        case 5: get_interval(i, 30, 30) == 0 ? type = SRLI : type = SRAI; break;
         default: type = INVALID;
         }
         break;
@@ -109,6 +110,151 @@ void Instruction::analysize(uint32_t i)
         type = INVALID;
         break;
     };
+}
+
+void Instruction::execute(MemoryController* mem, RegisterController* reg)
+{
+    if (type == INVALID) return;
+    uint32_t num;
+    uint32_t adr;
+    switch (type) {
+    case LUI:
+        reg->set_up20(rd, imm);
+        break;
+    case AUIPC:
+        reg->add_pc(imm);
+        reg->set(rd, reg->get_pc());
+        return;
+        break;
+    case JAL:
+        reg->add_pc(imm);
+        reg->set(rd, reg->get_pc() + 4);
+        return;
+        break;
+    case JALR:
+        num = imm =reg->get(rs1);
+        num ^= (num & 1);
+        reg->set_pc(num);
+        reg->set(rd, reg->get_pc() + 4);
+        return;
+        break;
+    case BEQ:
+        if (reg->get(rs1) == reg->get(rs2)) {reg->add_pc(imm); return;}
+        break;
+    case BNE:
+        if (reg->get(rs1) != reg->get(rs2)) {reg->add_pc(imm); return;}
+        break;
+    case BLT:
+        if ((int) reg->get(rs1) < (int) reg->get(rs2)) {reg->add_pc(imm); return;}
+        break;
+    case BGE:
+        if ((int) reg->get(rs1) >= (int) reg->get(rs2)) {reg->add_pc(imm); return;}
+        break;
+    case BLTU:
+        if (reg->get(rs1) < reg->get(rs2)) {reg->add_pc(imm); return;}
+        break;
+    case BGEU:
+        if (reg->get(rs1) >= reg->get(rs2)) {reg->add_pc(imm); return;}
+        break;
+    case LB:
+        adr = reg->get(rs1) + imm;
+        num = mem->read_8(adr);
+        reg->set(rd, num);
+        break;
+    case LH:
+        adr = reg->get(rs1) + imm;
+        num = mem->read_16(adr);
+        reg->set(rd, num);
+        break;
+    case LW:
+        adr = reg->get(rs1) + imm;
+        num = mem->read(adr);
+        reg->set(rd, num);
+        break;
+    case LBU:
+        adr = reg->get(rs1) + imm;
+        num = mem->read_8u(adr);
+        reg->set(rd, num);
+        break;
+    case LHU:
+        adr = reg->get(rs1) + imm;
+        num = mem->read_16u(adr);
+        reg->set(rd, num);
+        break;
+    case SB:
+        adr = reg->get(rs1) + imm;
+        num = reg->get(rs2);
+        mem->write_8(adr, num);
+        break;
+    case SH:
+        adr = reg->get(rs1) + imm;
+        num = reg->get(rs2);
+        mem->write_16(adr, num);
+        break;
+    case SW:
+        adr = reg->get(rs1) + imm;
+        num = reg->get(rs2);
+        mem->write(adr, num);
+        break;
+    case ADDI:
+        num = reg->get(rs1);
+        reg->set(rd, num + imm);
+        break;
+    case SLTI:
+        num = reg->get(rs1);
+        reg->set(rd, (int) num < (int) imm ? 1 : 0);
+        break;
+    case SLTIU:
+        num = reg->get(rs1);
+        reg->set(rd, num < imm ? 1 : 0);
+        break;
+    case XORI:
+        num = reg->get(rs1);
+        reg->set(rd, num ^ imm);
+        break;
+    case ORI:
+        num = reg->get(rs1);
+        reg->set(rd, num | imm);
+        break;
+    case ANDI:
+        num = reg->get(rs1);
+        reg->set(rd, num & imm);
+        break;
+    case SLLI:
+        num = reg->get(rs1);
+        reg->set(rd, num << 1);
+        break;
+    case SRLI:
+        num = reg->get(rs1);
+        reg->set(rd, num >> 1);
+        break;
+    case SRAI:
+        num = reg->get(rs1);
+        reg->set(rd, num >> 1 | ((num >> 31) << 31));
+        break;
+    case ADD:
+        break;
+    case SUB:
+        break;
+    case SLL:
+        break;
+    case SLT:
+        break;
+    case SLTU:
+        break;
+    case XOR:
+        break;
+    case SRL:
+        break;
+    case SRA:
+        break;
+    case OR:
+        break;
+    case AND:
+        break;
+    default: break;
+    }
+    reg->add_pc(4);
 }
 
 uint32_t get_interval(uint32_t i, int l, int r)

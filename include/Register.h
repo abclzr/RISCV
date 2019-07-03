@@ -9,14 +9,20 @@
 
 class Register {
 private:
-    int32_t c;
+    uint32_t c;
 
 public:
     Register() : c(0) {}
 
-    void set(int32_t);
+    void set(uint32_t);
 
-    int32_t get();
+    void set_up20_0();
+
+    void set_down12_0();
+
+    void add(uint32_t);
+
+    uint32_t get();
 };
 
 

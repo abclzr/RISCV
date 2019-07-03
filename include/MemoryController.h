@@ -16,15 +16,19 @@ public:
 
     uint32_t read(mem_address);
 
-    uint16_t read_16(mem_address);
+    uint32_t read_16(mem_address);
 
-    uint8_t read_8(mem_address);
+    uint32_t read_8(mem_address);
+
+    uint32_t read_16u(mem_address);
+
+    uint32_t read_8u(mem_address);
 
     void write(mem_address, uint32_t);
 
-    void write_16(mem_address, uint16_t);
+    void write_16(mem_address, uint32_t);
 
-    void write_8(mem_address, uint8_t);
+    void write_8(mem_address, uint32_t);
 };
 
 #endif //RISCV_MEMORYCONTROLLER_H

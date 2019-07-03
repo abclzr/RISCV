@@ -13,8 +13,15 @@ private:
     Register pc;
 
 public:
-    int32_t get(reg_address);
-    void set(reg_address, int32_t);
+    uint32_t get(reg_address);
+    void set(reg_address, uint32_t);
+    void add(reg_address, uint32_t);
+    void set_up20(reg_address, uint32_t);
+    void set_down12(reg_address, uint32_t);
+
+    uint32_t get_pc();
+    void set_pc(uint32_t);
+    void add_pc(uint32_t);
 };
 
 #endif //RISCV_REGISTERCONTROLLER_H

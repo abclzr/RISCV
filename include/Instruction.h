@@ -6,6 +6,8 @@
 #define RISCV_INSTRUCTION_H
 
 #include "configure.h"
+#include "MemoryController.h"
+#include "RegisterController.h"
 
 enum InstructionType {
   LUI, AUIPC, JAL, JALR, BEQ, BNE, BLT, BGE, BLTU, BGEU, LB, LH, LW, LBU, LHU,
@@ -23,13 +25,15 @@ public:
     InstructionType type;
     uint8_t opcode;
     reg_address rd, rs1, rs2;
-    uint32_t imm;
+    uint32_t imm, shamt;
 
     Instruction();
 
     explicit Instruction(uint32_t);
 
     void analysize(uint32_t);
+
+    void execute(MemoryController *, RegisterController *);
 };
 
 #endif //RISCV_INSTRUCTION_H
