@@ -22,8 +22,6 @@ uint32_t get_hex(char *c, int len)
 }
 
 int main() {
-    freopen("naive.data", "r", stdin);
-
     MemoryController mem;
     RegisterController reg;
 
@@ -43,8 +41,9 @@ int main() {
     }
 
     tmp = 0;
-    while (tmp != 0x00c6823) {
+    while (true) {
         Instruction ins(mem.read(tmp));
+        if (ins.ins == 0x00c68223) break;
         ins.execute(&mem, &reg);
         tmp = reg.get_pc();
     }
