@@ -8,7 +8,7 @@
 #include <cstdint>
 #include <cstring>
 
-const uint32_t MAX_ADDRESS = 8192;
+const uint32_t MAX_ADDRESS = 131072;
 
 typedef uint32_t mem_address;
 

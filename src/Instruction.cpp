@@ -26,28 +26,22 @@ void Instruction::analysize(uint32_t i)
     switch (opcode) {
     case 0x37: //0110111
         type = LUI;
-        push(imm, 12, 31, i, 12);
+        imm = get_U_imm(i);
         break;
     case 0x17: //0010111
         type = AUIPC;
-        push(imm, 12, 31, i, 12);
+        imm = get_U_imm(i);
         break;
     case 0x6f: //1101111
         type = JAL;
-        push(imm, 12, 19, i, 12);
-        push(imm, 11, 11, i, 20);
-        push(imm, 1, 10, i, 21);
-        push(imm, 20, 20, i, 31);
+        imm = get_J_imm(i);
         break;
     case 0x67: //1100111
         type = JALR;
-        push(imm, 0, 11, i, 20);
+        imm = get_I_imm(i);
         break;
     case 0x63: //1100011
-        push(imm, 11, 11, i, 7);
-        push(imm, 1, 4, i, 8);
-        push(imm, 5, 10, i, 25);
-        push(imm, 12, 12, i, 31);
+        imm = get_B_imm(i);
         switch (i12) {
         case 0: type = BEQ; break;
         case 1: type = BNE; break;
@@ -59,7 +53,7 @@ void Instruction::analysize(uint32_t i)
         }
         break;
     case 0X03: //0000011
-        push(imm, 0, 11, i, 20);
+        imm = get_I_imm(i);
         switch (i12) {
         case 0: type = LB; break;
         case 1: type = LH; break;
@@ -70,8 +64,7 @@ void Instruction::analysize(uint32_t i)
         }
         break;
     case 0x23: //0100011
-        push(imm, 0, 4, i, 7);
-        push(imm, 5, 11, i, 25);
+        imm = get_S_imm(i);
         switch (i12) {
         case 0: type = SB; break;
         case 1: type = SH; break;
@@ -80,7 +73,7 @@ void Instruction::analysize(uint32_t i)
         }
         break;
     case 0x13: //0010011
-        push(imm, 0, 11, i, 20);
+        imm = get_I_imm(i);
         switch (i12) {
         case 0: type = ADDI; break;
         case 2: type = SLTI; break;
@@ -285,4 +278,45 @@ void push(uint32_t& x, int l, int r, uint32_t i, int L)
 {
     i = get_interval(i, L, L + r - l);
     x |= (i << l);
+}
+
+uint32_t get_I_imm(uint32_t i)
+{
+    uint32_t num = (int) i >> 20;
+    return num;
+}
+
+uint32_t get_S_imm(uint32_t i)
+{
+    uint32_t num = (int) i >> 20;
+    num ^= get_interval(num, 0, 4);
+    push(num, 0, 4, i, 7);
+    return num;
+}
+
+uint32_t get_B_imm(uint32_t i)
+{
+    uint32_t num = (int) i >> 20;
+    num ^= get_interval(num, 11, 11) << 11;
+    num |= get_interval(i, 7, 7) << 11;
+    num ^= get_interval(num, 0, 4);
+    push(num, 1, 4, i, 8);
+    return num;
+}
+
+uint32_t get_U_imm(uint32_t i)
+{
+    uint32_t num = i;
+    num ^= get_interval(i, 0, 11);
+    return num;
+}
+
+uint32_t get_J_imm(uint32_t i)
+{
+    uint32_t num = (int) i >> 20;
+    num ^= get_interval(num, 0, 0);
+    num ^= get_interval(num, 11, 19) << 11;
+    push(num, 11, 11, i, 20);
+    push(num, 12, 19, i, 12);
+    return num;
 }

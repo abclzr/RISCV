@@ -17,6 +17,12 @@ enum InstructionType {
 
 uint32_t get_interval(uint32_t, int, int);
 
+uint32_t get_I_imm(uint32_t);
+uint32_t get_S_imm(uint32_t);
+uint32_t get_B_imm(uint32_t);
+uint32_t get_U_imm(uint32_t);
+uint32_t get_J_imm(uint32_t);
+
 void push(uint32_t &, int, int, uint32_t, int);
 
 class Instruction {

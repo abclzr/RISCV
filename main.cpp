@@ -8,8 +8,8 @@ char s[1000003];
 
 uint32_t trans(char c) {
     if ('0' <= c && c <= '9') return c - '0';
-    else if ('A' <= c && c <= 'F') return c - 'A';
-    else if ('a' <= c && c <= 'f') return c - 'a';
+    else if ('A' <= c && c <= 'F') return c - 'A' + 10;
+    else if ('a' <= c && c <= 'f') return c - 'a' + 10;
     else throw std::invalid_argument("233");
 }
 
@@ -34,7 +34,7 @@ int main() {
             tmp = get_hex(s + 1, strlen(s) - 1);
         } else {
             int len = strlen(s);
-            for (int i = 0; i < len; i += 2) {
+            for (int i = 0; i < len; i += 3) {
                 uint32_t num = get_hex(s + i, 2);
                 mem.write(tmp, num);
                 ++tmp;
