@@ -122,20 +122,19 @@ void Instruction::execute(MemoryController* mem, RegisterController* reg)
         reg->set_up20(rd, imm);
         break;
     case AUIPC:
-        reg->add_pc(imm);
-        reg->set(rd, reg->get_pc());
-        return;
+        num = reg->get_pc() + imm;
+        reg->set(rd, num);
         break;
     case JAL:
-        reg->add_pc(imm);
         reg->set(rd, reg->get_pc() + 4);
+        reg->add_pc(imm);
         return;
         break;
     case JALR:
-        num = imm =reg->get(rs1);
+        reg->set(rd, reg->get_pc() + 4);
+        num = imm + reg->get(rs1);
         num ^= (num & 1);
         reg->set_pc(num);
-        reg->set(rd, reg->get_pc() + 4);
         return;
         break;
     case BEQ:
@@ -222,35 +221,53 @@ void Instruction::execute(MemoryController* mem, RegisterController* reg)
         break;
     case SLLI:
         num = reg->get(rs1);
-        reg->set(rd, num << 1);
+        reg->set(rd, num << shamt);
         break;
     case SRLI:
         num = reg->get(rs1);
-        reg->set(rd, num >> 1);
+        reg->set(rd, num >> shamt);
         break;
     case SRAI:
         num = reg->get(rs1);
-        reg->set(rd, num >> 1 | ((num >> 31) << 31));
+        reg->set(rd, (int) num >> shamt);
         break;
     case ADD:
+        num = reg->get(rs1) + reg->get(rs2);
+        reg->set(rd, num);
         break;
     case SUB:
+        num = reg->get(rs1) - reg->get(rs2);
+        reg->set(rd, num);
         break;
     case SLL:
+        num = reg->get(rs1);
+        reg->set(rd, num << get_interval(reg->get(rs2), 0, 4));
         break;
     case SLT:
+        reg->set(rd, (int) reg->get(rs1) < (int) reg->get(rs2) ? 1 : 0);
         break;
     case SLTU:
+        reg->set(rd, reg->get(rs1) < reg->get(rs2) ? 1 : 0);
         break;
     case XOR:
+        num = reg->get(rs1) ^ reg->get(rs2);
+        reg->set(rd, num);
         break;
     case SRL:
+        num = reg->get(rs1);
+        reg->set(rd, num >> get_interval(reg->get(rs2), 0, 4));
         break;
     case SRA:
+        num = reg->get(rs1);
+        reg->set(rd, (int) num >> get_interval(reg->get(rs2), 0, 4));
         break;
     case OR:
+        num = reg->get(rs1) | reg->get(rs2);
+        reg->set(rd, num);
         break;
     case AND:
+        num = reg->get(rs1) & reg->get(rs2);
+        reg->set(rd, num);
         break;
     default: break;
     }
