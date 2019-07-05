@@ -16,6 +16,7 @@ buffer& buffer::operator=(const buffer& other)
     num = other.num;
     adr = other.adr;
     pd = other.pd;
+    return *this;
 }
 
 void buffer::reset()

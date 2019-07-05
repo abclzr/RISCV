@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 project(RISCV)
 
-set(CMAKE_CXX_STANDARD 14 02)
+set(CMAKE_CXX_STANDARD 14)
 
 include_directories(./include)
 

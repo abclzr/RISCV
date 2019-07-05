@@ -23,7 +23,6 @@ uint32_t get_hex(char *c, int len)
 }
 
 int main() {
-    freopen("pi.data", "r", stdin);
     MemoryController mem;
     RegisterController reg;
 
