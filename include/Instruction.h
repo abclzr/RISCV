@@ -35,11 +35,15 @@ public:
 
     Instruction();
 
+    void reset();
+
     explicit Instruction(uint32_t);
 
     void analysize(uint32_t);
 
     void execute(MemoryController *, RegisterController *);
+
+    Instruction & operator=(const Instruction &);
 };
 
 #endif //RISCV_INSTRUCTION_H

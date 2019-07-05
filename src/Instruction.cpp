@@ -267,6 +267,25 @@ void Instruction::execute(MemoryController* mem, RegisterController* reg)
     reg->add_pc(4);
 }
 
+Instruction& Instruction::operator=(const Instruction& other)
+{
+    if (this == &other) return *this;
+    ins = other.ins;
+    type = other.type;
+    opcode = other.opcode;
+    rd = other.rd;
+    rs1 = other.rs1;
+    rs2 = other.rs2;
+    imm = other.imm;
+    shamt = other.shamt;
+    return *this;
+}
+
+void Instruction::reset()
+{
+    memset(this, 0, sizeof(Instruction));
+}
+
 uint32_t get_interval(uint32_t i, int l, int r)
 {
     i >>= l;

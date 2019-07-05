@@ -7,4 +7,6 @@ include_directories(./include)
 
 aux_source_directory(./src abclzr_src)
 
-add_executable(code main.cpp ${abclzr_src})
+aux_source_directory(./test abclzr_test)
+
+add_executable(code ${abclzr_src} ${abclzr_test})

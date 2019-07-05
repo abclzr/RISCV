@@ -3,6 +3,7 @@
 #include "MemoryController.h"
 #include "RegisterController.h"
 #include <stdexcept>
+#include "Stage.h"
 
 char s[1000003];
 
