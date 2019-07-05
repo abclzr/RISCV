@@ -205,7 +205,7 @@ void MEM::execute(MemoryController* mem, RegisterController* reg)
     case JAL:
 //        reg->set(buf.rd, reg->get_pc() + 4);
 //        reg->add_pc(buf.imm);
-        return;
+//        return;
         break;
     case JALR:
 //        reg->set(buf.rd, reg->get_pc() + 4);
@@ -350,7 +350,6 @@ void MEM::execute(MemoryController* mem, RegisterController* reg)
     }
 //    reg->add_pc(4);
 }
-
 
 void WB::execute(MemoryController* mem, RegisterController* reg)
 {

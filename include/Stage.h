@@ -14,27 +14,27 @@ public:
     virtual void execute(MemoryController *, RegisterController *) = 0;
 };
 
-class IF : Stage {
+class IF : public Stage {
 public:
     void execute(MemoryController *, RegisterController *) override ;
 };
 
-class ID : Stage {
+class ID : public Stage {
 public:
     void execute(MemoryController *, RegisterController *) override ;
 };
 
-class EX : Stage {
+class EX : public Stage {
 public:
     void execute(MemoryController *, RegisterController *) override ;
 };
 
-class MEM : Stage {
+class MEM : public Stage {
 public:
     void execute(MemoryController *, RegisterController *) override ;
 };
 
-class WB : Stage {
+class WB : public Stage {
 public:
     void execute(MemoryController *, RegisterController *) override ;
 };

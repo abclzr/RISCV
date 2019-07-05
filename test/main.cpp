@@ -23,6 +23,7 @@ uint32_t get_hex(char *c, int len)
 }
 
 int main() {
+    freopen("pi.data", "r", stdin);
     MemoryController mem;
     RegisterController reg;
 
@@ -41,12 +42,32 @@ int main() {
         }
     }
 
+    IF s1;
+    ID s2;
+    EX s3;
+    MEM s4;
+    WB s5;
+    /*
     tmp = 0;
     while (true) {
         Instruction ins(mem.read(tmp));
         if (ins.ins == 0x00c68223) break;
         ins.execute(&mem, &reg);
         tmp = reg.get_pc();
+    }
+     */
+
+    while (true) {
+        s1.execute(&mem, &reg);
+        if (s1.buf.ins == 0x00c68223) break;
+        s2.buf = s1.buf;
+        s2.execute(&mem, &reg);
+        s3.buf = s2.buf;
+        s3.execute(&mem, &reg);
+        s4.buf = s3.buf;
+        s4.execute(&mem, &reg);
+        s5.buf = s4.buf;
+        s5.execute(&mem, &reg);
     }
 
     printf("%d\n", reg.get(10) & (1 << 8) - 1);
