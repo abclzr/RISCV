@@ -35,7 +35,7 @@ public:
 
     Instruction();
 
-    void reset();
+    virtual void reset();
 
     explicit Instruction(uint32_t);
 

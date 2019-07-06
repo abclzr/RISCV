@@ -56,6 +56,7 @@ int main() {
     }
      */
 
+
     while (true) {
         s1.execute(&mem, &reg);
         if (s1.buf.ins == 0x00c68223) break;

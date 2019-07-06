@@ -11,11 +11,12 @@ class buffer : public Instruction {
 public:
     uint32_t num;
     uint32_t adr;
+    mem_address npc;
     bool pd;
 
     buffer();
 
-    void reset();
+    void reset() override;
 
     buffer & operator=(const buffer &);
 };

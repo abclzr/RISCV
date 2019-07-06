@@ -9,6 +9,8 @@ void IF::execute(MemoryController* mem, RegisterController* reg)
     mem_address npc = reg->get_pc();
     buf.reset();
     buf.ins = mem->read(npc);
+    buf.npc = npc;
+    reg->add_pc(4);
 }
 
 void ID::execute(MemoryController* mem, RegisterController* reg)
@@ -24,18 +26,18 @@ void EX::execute(MemoryController* mem, RegisterController* reg)
 //        reg->set_up20(buf.rd, buf.imm);
         break;
     case AUIPC:
-        buf.num = reg->get_pc() + buf.imm;
+        buf.num = buf.npc + buf.imm;
 //        reg->set(buf.rd, num);
         break;
     case JAL:
-        buf.adr = reg->get_pc() + 4;
-//        reg->set(buf.rd, reg->get_pc() + 4);
+        buf.adr = buf.npc + 4;
+//        reg->set(buf.rd, buf.npc + 4);
 //        reg->add_pc(buf.imm);
 //        return;
         break;
     case JALR:
-        buf.adr = reg->get_pc() + 4;
-//        reg->set(buf.rd, reg->get_pc() + 4);
+        buf.adr = buf.npc + 4;
+//        reg->set(buf.rd, buf.npc + 4);
         buf.num = buf.imm + reg->get(buf.rs1);
         buf.num ^= (buf.num & 1);
 //        reg->set_pc(num);
@@ -199,16 +201,16 @@ void MEM::execute(MemoryController* mem, RegisterController* reg)
 //        reg->set_up20(buf.rd, buf.imm);
         break;
     case AUIPC:
-//        num = reg->get_pc() + buf.imm;
+//        num = buf.npc + buf.imm;
 //        reg->set(buf.rd, num);
         break;
     case JAL:
-//        reg->set(buf.rd, reg->get_pc() + 4);
+//        reg->set(buf.rd, buf.npc + 4);
 //        reg->add_pc(buf.imm);
 //        return;
         break;
     case JALR:
-//        reg->set(buf.rd, reg->get_pc() + 4);
+//        reg->set(buf.rd, buf.npc + 4);
 //        num = buf.imm + reg->get(buf.rs1);
 //        num ^= (num & 1);
 //        reg->set_pc(num);
@@ -359,12 +361,12 @@ void WB::execute(MemoryController* mem, RegisterController* reg)
         reg->set_up20(buf.rd, buf.imm);
         break;
     case AUIPC:
-//        num = reg->get_pc() + buf.imm;
+//        num = buf.npc + buf.imm;
         reg->set(buf.rd, buf.num);
         break;
     case JAL:
         reg->set(buf.rd, buf.adr);
-        reg->add_pc(buf.imm);
+        reg->add_pc(buf.imm - 4);
         return;
         break;
     case JALR:
@@ -375,22 +377,22 @@ void WB::execute(MemoryController* mem, RegisterController* reg)
         return;
         break;
     case BEQ:
-        if (buf.pd) {reg->add_pc(buf.imm); return;}
+        if (buf.pd) {reg->add_pc(buf.imm - 4); return;}
         break;
     case BNE:
-        if (buf.pd) {reg->add_pc(buf.imm); return;}
+        if (buf.pd) {reg->add_pc(buf.imm - 4); return;}
         break;
     case BLT:
-        if (buf.pd) {reg->add_pc(buf.imm); return;}
+        if (buf.pd) {reg->add_pc(buf.imm - 4); return;}
         break;
     case BGE:
-        if (buf.pd) {reg->add_pc(buf.imm); return;}
+        if (buf.pd) {reg->add_pc(buf.imm - 4); return;}
         break;
     case BLTU:
-        if (buf.pd) {reg->add_pc(buf.imm); return;}
+        if (buf.pd) {reg->add_pc(buf.imm - 4); return;}
         break;
     case BGEU:
-        if (buf.pd) {reg->add_pc(buf.imm); return;}
+        if (buf.pd) {reg->add_pc(buf.imm - 4); return;}
         break;
     case LB:
 //        adr = reg->get(buf.rs1) + buf.imm;
@@ -508,5 +510,4 @@ void WB::execute(MemoryController* mem, RegisterController* reg)
         break;
     default: break;
     }
-    reg->add_pc(4);
 }
