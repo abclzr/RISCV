@@ -4,7 +4,7 @@
 
 #include "Stage.h"
 
-void IF::execute(MemoryController* mem, RegisterController* reg)
+void IF::execute(MemoryController* mem, RegisterController* reg, bool &flag)
 {
     mem_address npc = reg->get_pc();
     buf.reset();
@@ -13,12 +13,12 @@ void IF::execute(MemoryController* mem, RegisterController* reg)
     reg->add_pc(4);
 }
 
-void ID::execute(MemoryController* mem, RegisterController* reg)
+void ID::execute(MemoryController* mem, RegisterController* reg, bool &flag)
 {
     buf.analysize(buf.ins);
 }
 
-void EX::execute(MemoryController* mem, RegisterController* reg)
+void EX::execute(MemoryController* mem, RegisterController* reg, bool &flag)
 {
     if (buf.type == INVALID) return;
     switch (buf.type) {
@@ -193,7 +193,7 @@ void EX::execute(MemoryController* mem, RegisterController* reg)
 //    reg->add_pc(4);
 }
 
-void MEM::execute(MemoryController* mem, RegisterController* reg)
+void MEM::execute(MemoryController* mem, RegisterController* reg, bool &flag)
 {
     if (buf.type == INVALID) return;
     switch (buf.type) {
@@ -353,7 +353,7 @@ void MEM::execute(MemoryController* mem, RegisterController* reg)
 //    reg->add_pc(4);
 }
 
-void WB::execute(MemoryController* mem, RegisterController* reg)
+void WB::execute(MemoryController* mem, RegisterController* reg, bool &flag)
 {
     if (buf.type == INVALID) return;
     switch (buf.type) {

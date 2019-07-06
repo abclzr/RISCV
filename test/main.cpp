@@ -56,7 +56,7 @@ int main() {
     }
      */
 
-
+    /*
     while (true) {
         s1.execute(&mem, &reg);
         if (s1.buf.ins == 0x00c68223) break;
@@ -69,6 +69,7 @@ int main() {
         s5.buf = s4.buf;
         s5.execute(&mem, &reg);
     }
+    */
 
     printf("%d\n", reg.get(10) & (1 << 8) - 1);
 

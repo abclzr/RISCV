@@ -11,32 +11,32 @@ class Stage {
 public:
     buffer buf;
 
-    virtual void execute(MemoryController *, RegisterController *) = 0;
+    virtual void execute(MemoryController *, RegisterController *, bool &) = 0;
 };
 
 class IF : public Stage {
 public:
-    void execute(MemoryController *, RegisterController *) override ;
+    void execute(MemoryController *, RegisterController *, bool &) override ;
 };
 
 class ID : public Stage {
 public:
-    void execute(MemoryController *, RegisterController *) override ;
+    void execute(MemoryController *, RegisterController *, bool &) override ;
 };
 
 class EX : public Stage {
 public:
-    void execute(MemoryController *, RegisterController *) override ;
+    void execute(MemoryController *, RegisterController *, bool &) override ;
 };
 
 class MEM : public Stage {
 public:
-    void execute(MemoryController *, RegisterController *) override ;
+    void execute(MemoryController *, RegisterController *, bool &) override ;
 };
 
 class WB : public Stage {
 public:
-    void execute(MemoryController *, RegisterController *) override ;
+    void execute(MemoryController *, RegisterController *, bool &) override ;
 };
 
 #endif //RISCV_STAGE_H
