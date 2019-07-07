@@ -23,174 +23,203 @@ void EX::execute(MemoryController* mem, RegisterController* reg, bool &flag)
     if (buf.type == INVALID) return;
     switch (buf.type) {
     case LUI:
-//        reg->set_up20(buf.rd, buf.imm);
+        reg->lock_on(buf.rd);
         break;
     case AUIPC:
         buf.num = buf.npc + buf.imm;
-//        reg->set(buf.rd, num);
+        reg->lock_on(buf.rd);
         break;
     case JAL:
         buf.adr = buf.npc + 4;
-//        reg->set(buf.rd, buf.npc + 4);
-//        reg->add_pc(buf.imm);
-//        return;
+        reg->lock_on(buf.rd);
+        reg->lock_on_pc();
         break;
     case JALR:
+        if (reg->is_lock(buf.rs1)) {flag = true; return;}
         buf.adr = buf.npc + 4;
-//        reg->set(buf.rd, buf.npc + 4);
         buf.num = buf.imm + reg->get(buf.rs1);
         buf.num ^= (buf.num & 1);
-//        reg->set_pc(num);
-//        return;
+        reg->lock_on(buf.rd);
+        reg->lock_on_pc();
         break;
     case BEQ:
-        buf.pd = (reg->get(buf.rs1) == reg->get(buf.rs2)); //{reg->add_pc(buf.imm); return;}
+        if (reg->is_lock(buf.rs1) || reg->is_lock(buf.rs2)) {flag = true; return;}
+        buf.pd = (reg->get(buf.rs1) == reg->get(buf.rs2));
+        reg->lock_on_pc();
         break;
     case BNE:
-        buf.pd = (reg->get(buf.rs1) != reg->get(buf.rs2)); //{reg->add_pc(buf.imm); return;}
+        if (reg->is_lock(buf.rs1) || reg->is_lock(buf.rs2)) {flag = true; return;}
+        buf.pd = (reg->get(buf.rs1) != reg->get(buf.rs2));
+        reg->lock_on_pc();
         break;
     case BLT:
-        buf.pd = ((int) reg->get(buf.rs1) < (int) reg->get(buf.rs2)); //{reg->add_pc(buf.imm); return;}
+        if (reg->is_lock(buf.rs1) || reg->is_lock(buf.rs2)) {flag = true; return;}
+        buf.pd = ((int) reg->get(buf.rs1) < (int) reg->get(buf.rs2));
+        reg->lock_on_pc();
         break;
     case BGE:
-        buf.pd = ((int) reg->get(buf.rs1) >= (int) reg->get(buf.rs2)); //{reg->add_pc(buf.imm); return;}
+        if (reg->is_lock(buf.rs1) || reg->is_lock(buf.rs2)) {flag = true; return;}
+        buf.pd = ((int) reg->get(buf.rs1) >= (int) reg->get(buf.rs2));
+        reg->lock_on_pc();
         break;
     case BLTU:
-        buf.pd = (reg->get(buf.rs1) < reg->get(buf.rs2)); //{reg->add_pc(buf.imm); return;}
+        if (reg->is_lock(buf.rs1) || reg->is_lock(buf.rs2)) {flag = true; return;}
+        buf.pd = (reg->get(buf.rs1) < reg->get(buf.rs2));
+        reg->lock_on_pc();
         break;
     case BGEU:
-        buf.pd = (reg->get(buf.rs1) >= reg->get(buf.rs2)); //{reg->add_pc(buf.imm); return;}
+        if (reg->is_lock(buf.rs1) || reg->is_lock(buf.rs2)) {flag = true; return;}
+        buf.pd = (reg->get(buf.rs1) >= reg->get(buf.rs2));
+        reg->lock_on_pc();
         break;
     case LB:
+        if (reg->is_lock(buf.rs1)) {flag = true; return;}
         buf.adr = reg->get(buf.rs1) + buf.imm;
-//        num = mem->read_8(adr);
-//        reg->set(buf.rd, num);
+        reg->lock_on(buf.rd);
         break;
     case LH:
+        if (reg->is_lock(buf.rs1)) {flag = true; return;}
         buf.adr = reg->get(buf.rs1) + buf.imm;
-//        num = mem->read_16(adr);
-//        reg->set(buf.rd, num);
+        reg->lock_on(buf.rd);
         break;
     case LW:
+        if (reg->is_lock(buf.rs1)) {flag = true; return;}
         buf.adr = reg->get(buf.rs1) + buf.imm;
-//        num = mem->read(adr);
-//        reg->set(buf.rd, num);
+        reg->lock_on(buf.rd);
         break;
     case LBU:
+        if (reg->is_lock(buf.rs1)) {flag = true; return;}
         buf.adr = reg->get(buf.rs1) + buf.imm;
-//        num = mem->read_8u(adr);
-//        reg->set(buf.rd, num);
+        reg->lock_on(buf.rd);
         break;
     case LHU:
+        if (reg->is_lock(buf.rs1)) {flag = true; return;}
         buf.adr = reg->get(buf.rs1) + buf.imm;
-//        num = mem->read_16u(adr);
-//        reg->set(buf.rd, num);
+        reg->lock_on(buf.rd);
         break;
     case SB:
+        if (reg->is_lock(buf.rs1) || reg->is_lock(buf.rs2)) {flag = true; return;}
         buf.adr = reg->get(buf.rs1) + buf.imm;
         buf.num = reg->get(buf.rs2);
-//        mem->write_8(adr, num);
         break;
     case SH:
+        if (reg->is_lock(buf.rs1) || reg->is_lock(buf.rs2)) {flag = true; return;}
         buf.adr = reg->get(buf.rs1) + buf.imm;
         buf.num = reg->get(buf.rs2);
-//        mem->write_16(adr, num);
         break;
     case SW:
+        if (reg->is_lock(buf.rs1) || reg->is_lock(buf.rs2)) {flag = true; return;}
         buf.adr = reg->get(buf.rs1) + buf.imm;
         buf.num = reg->get(buf.rs2);
-//        mem->write(adr, num);
         break;
     case ADDI:
+        if (reg->is_lock(buf.rs1)) {flag = true; return;}
         buf.num = reg->get(buf.rs1);
-//        reg->set(buf.rd, num + buf.imm);
+        reg->lock_on(buf.rd);
         break;
     case SLTI:
+        if (reg->is_lock(buf.rs1)) {flag = true; return;}
         buf.num = reg->get(buf.rs1);
         buf.num = ((int) buf.num < (int) buf.imm ? 1 : 0);
-//        reg->set(buf.rd, (int) buf.num < (int) buf.imm ? 1 : 0);
+        reg->lock_on(buf.rd);
         break;
     case SLTIU:
+        if (reg->is_lock(buf.rs1)) {flag = true; return;}
         buf.num = reg->get(buf.rs1);
         buf.num = (buf.num < buf.imm ? 1 : 0);
-//        reg->set(buf.rd, num < buf.imm ? 1 : 0);
+        reg->lock_on(buf.rd);
         break;
     case XORI:
+        if (reg->is_lock(buf.rs1)) {flag = true; return;}
         buf.num = reg->get(buf.rs1);
         buf.num = (buf.num ^ buf.imm);
-//        reg->set(buf.rd, num ^ buf.imm);
+        reg->lock_on(buf.rd);
         break;
     case ORI:
+        if (reg->is_lock(buf.rs1)) {flag = true; return;}
         buf.num = reg->get(buf.rs1);
         buf.num = (buf.num | buf.imm);
-//        reg->set(buf.rd, num | buf.imm);
+        reg->lock_on(buf.rd);
         break;
     case ANDI:
+        if (reg->is_lock(buf.rs1)) {flag = true; return;}
         buf.num = reg->get(buf.rs1);
         buf.num = (buf.num & buf.imm);
-//        reg->set(buf.rd, num & buf.imm);
+        reg->lock_on(buf.rd);
         break;
     case SLLI:
+        if (reg->is_lock(buf.rs1)) {flag = true; return;}
         buf.num = reg->get(buf.rs1);
         buf.num = (buf.num << buf.shamt);
-//        reg->set(buf.rd, num << buf.shamt);
+        reg->lock_on(buf.rd);
         break;
     case SRLI:
+        if (reg->is_lock(buf.rs1)) {flag = true; return;}
         buf.num = reg->get(buf.rs1);
         buf.num = (buf.num >> buf.shamt);
-//        reg->set(buf.rd, num >> buf.shamt);
+        reg->lock_on(buf.rd);
         break;
     case SRAI:
+        if (reg->is_lock(buf.rs1)) {flag = true; return;}
         buf.num = reg->get(buf.rs1);
         buf.num = ((int) buf.num >> buf.shamt);
-//        reg->set(buf.rd, (int) num >> buf.shamt);
+        reg->lock_on(buf.rd);
         break;
     case ADD:
+        if (reg->is_lock(buf.rs1) || reg->is_lock(buf.rs2)) {flag = true; return;}
         buf.num = reg->get(buf.rs1) + reg->get(buf.rs2);
-//        reg->set(buf.rd, num);
+        reg->lock_on(buf.rd);
         break;
     case SUB:
+        if (reg->is_lock(buf.rs1) || reg->is_lock(buf.rs2)) {flag = true; return;}
         buf.num = reg->get(buf.rs1) - reg->get(buf.rs2);
-//        reg->set(buf.rd, num);
+        reg->lock_on(buf.rd);
         break;
     case SLL:
+        if (reg->is_lock(buf.rs1) || reg->is_lock(buf.rs2)) {flag = true; return;}
         buf.num = reg->get(buf.rs1);
         buf.num = (buf.num << get_interval(reg->get(buf.rs2), 0, 4));
-//        reg->set(buf.rd, num << get_interval(reg->get(buf.rs2), 0, 4));
+        reg->lock_on(buf.rd);
         break;
     case SLT:
+        if (reg->is_lock(buf.rs1) || reg->is_lock(buf.rs2)) {flag = true; return;}
         buf.num = ((int) reg->get(buf.rs1) < (int) reg->get(buf.rs2) ? 1 : 0);
-//        reg->set(buf.rd, (int) reg->get(buf.rs1) < (int) reg->get(buf.rs2) ? 1 : 0);
+        reg->lock_on(buf.rd);
         break;
     case SLTU:
+        if (reg->is_lock(buf.rs1) || reg->is_lock(buf.rs2)) {flag = true; return;}
         buf.num = (reg->get(buf.rs1) < reg->get(buf.rs2) ? 1 : 0);
-//        reg->set(buf.rd, reg->get(buf.rs1) < reg->get(buf.rs2) ? 1 : 0);
+        reg->lock_on(buf.rd);
         break;
     case XOR:
+        if (reg->is_lock(buf.rs1) || reg->is_lock(buf.rs2)) {flag = true; return;}
         buf.num = reg->get(buf.rs1) ^ reg->get(buf.rs2);
-//        reg->set(buf.rd, num);
+        reg->lock_on(buf.rd);
         break;
     case SRL:
+        if (reg->is_lock(buf.rs1) || reg->is_lock(buf.rs2)) {flag = true; return;}
         buf.num = reg->get(buf.rs1);
         buf.num = (buf.num >> get_interval(reg->get(buf.rs2), 0, 4));
-//        reg->set(buf.rd, num >> get_interval(reg->get(buf.rs2), 0, 4));
+        reg->lock_on(buf.rd);
         break;
     case SRA:
+        if (reg->is_lock(buf.rs1) || reg->is_lock(buf.rs2)) {flag = true; return;}
         buf.num = reg->get(buf.rs1);
         buf.num = ((int) buf.num >> get_interval(reg->get(buf.rs2), 0, 4));
-//        reg->set(buf.rd, (int) num >> get_interval(reg->get(buf.rs2), 0, 4));
+        reg->lock_on(buf.rd);
         break;
     case OR:
+        if (reg->is_lock(buf.rs1) || reg->is_lock(buf.rs2)) {flag = true; return;}
         buf.num = reg->get(buf.rs1) | reg->get(buf.rs2);
-//        reg->set(buf.rd, num);
+        reg->lock_on(buf.rd);
         break;
     case AND:
+        if (reg->is_lock(buf.rs1) || reg->is_lock(buf.rs2)) {flag = true; return;}
         buf.num = reg->get(buf.rs1) & reg->get(buf.rs2);
-//        reg->set(buf.rd, num);
+        reg->lock_on(buf.rd);
         break;
     default: break;
     }
-//    reg->add_pc(4);
 }
 
 void MEM::execute(MemoryController* mem, RegisterController* reg, bool &flag)
@@ -198,159 +227,89 @@ void MEM::execute(MemoryController* mem, RegisterController* reg, bool &flag)
     if (buf.type == INVALID) return;
     switch (buf.type) {
     case LUI:
-//        reg->set_up20(buf.rd, buf.imm);
         break;
     case AUIPC:
-//        num = buf.npc + buf.imm;
-//        reg->set(buf.rd, num);
         break;
     case JAL:
-//        reg->set(buf.rd, buf.npc + 4);
-//        reg->add_pc(buf.imm);
-//        return;
         break;
     case JALR:
-//        reg->set(buf.rd, buf.npc + 4);
-//        num = buf.imm + reg->get(buf.rs1);
-//        num ^= (num & 1);
-//        reg->set_pc(num);
-//        return;
         break;
     case BEQ:
-//        if (reg->get(buf.rs1) == reg->get(buf.rs2)) {reg->add_pc(buf.imm); return;}
         break;
     case BNE:
-//        if (reg->get(buf.rs1) != reg->get(buf.rs2)) {reg->add_pc(buf.imm); return;}
         break;
     case BLT:
-//        if ((int) reg->get(buf.rs1) < (int) reg->get(buf.rs2)) {reg->add_pc(buf.imm); return;}
         break;
     case BGE:
-//        if ((int) reg->get(buf.rs1) >= (int) reg->get(buf.rs2)) {reg->add_pc(buf.imm); return;}
         break;
     case BLTU:
-//        if (reg->get(buf.rs1) < reg->get(buf.rs2)) {reg->add_pc(buf.imm); return;}
         break;
     case BGEU:
-//        if (reg->get(buf.rs1) >= reg->get(buf.rs2)) {reg->add_pc(buf.imm); return;}
         break;
     case LB:
-//        adr = reg->get(buf.rs1) + buf.imm;
         buf.num = mem->read_8(buf.adr);
-//        reg->set(buf.rd, num);
         break;
     case LH:
-//        adr = reg->get(buf.rs1) + buf.imm;
         buf.num = mem->read_16(buf.adr);
-//        reg->set(buf.rd, num);
         break;
     case LW:
-//        adr = reg->get(buf.rs1) + buf.imm;
         buf.num = mem->read(buf.adr);
-//        reg->set(buf.rd, num);
         break;
     case LBU:
-//        adr = reg->get(buf.rs1) + buf.imm;
         buf.num = mem->read_8u(buf.adr);
-//        reg->set(buf.rd, num);
         break;
     case LHU:
-//        adr = reg->get(buf.rs1) + buf.imm;
         buf.num = mem->read_16u(buf.adr);
-//        reg->set(buf.rd, num);
         break;
     case SB:
-//        adr = reg->get(buf.rs1) + buf.imm;
-//        num = reg->get(buf.rs2);
         mem->write_8(buf.adr, buf.num);
         break;
     case SH:
-//        adr = reg->get(buf.rs1) + buf.imm;
-//        num = reg->get(buf.rs2);
         mem->write_16(buf.adr, buf.num);
         break;
     case SW:
-//        adr = reg->get(buf.rs1) + buf.imm;
-//        num = reg->get(buf.rs2);
         mem->write(buf.adr, buf.num);
         break;
     case ADDI:
-//        num = reg->get(buf.rs1);
-//        reg->set(buf.rd, num + buf.imm);
         break;
     case SLTI:
-//        num = reg->get(buf.rs1);
-//        reg->set(buf.rd, (int) num < (int) buf.imm ? 1 : 0);
         break;
     case SLTIU:
-//        num = reg->get(buf.rs1);
-//        reg->set(buf.rd, num < buf.imm ? 1 : 0);
         break;
     case XORI:
-//        num = reg->get(buf.rs1);
-//        reg->set(buf.rd, num ^ buf.imm);
         break;
     case ORI:
-//        num = reg->get(buf.rs1);
-//        reg->set(buf.rd, num | buf.imm);
         break;
     case ANDI:
-//        num = reg->get(buf.rs1);
-//        reg->set(buf.rd, num & buf.imm);
         break;
     case SLLI:
-//        num = reg->get(buf.rs1);
-//        reg->set(buf.rd, num << buf.shamt);
         break;
     case SRLI:
-//        num = reg->get(buf.rs1);
-//        reg->set(buf.rd, num >> buf.shamt);
         break;
     case SRAI:
-//        num = reg->get(buf.rs1);
-//        reg->set(buf.rd, (int) num >> buf.shamt);
         break;
     case ADD:
-//        num = reg->get(buf.rs1) + reg->get(buf.rs2);
-//        reg->set(buf.rd, num);
         break;
     case SUB:
-//        num = reg->get(buf.rs1) - reg->get(buf.rs2);
-//        reg->set(buf.rd, num);
         break;
     case SLL:
-//        num = reg->get(buf.rs1);
-//        reg->set(buf.rd, num << get_interval(reg->get(buf.rs2), 0, 4));
         break;
     case SLT:
-//        reg->set(buf.rd, (int) reg->get(buf.rs1) < (int) reg->get(buf.rs2) ? 1 : 0);
         break;
     case SLTU:
-//        reg->set(buf.rd, reg->get(buf.rs1) < reg->get(buf.rs2) ? 1 : 0);
         break;
     case XOR:
-//        num = reg->get(buf.rs1) ^ reg->get(buf.rs2);
-//        reg->set(buf.rd, num);
         break;
     case SRL:
-//        num = reg->get(buf.rs1);
-//        reg->set(buf.rd, num >> get_interval(reg->get(buf.rs2), 0, 4));
         break;
     case SRA:
-//        num = reg->get(buf.rs1);
-//        reg->set(buf.rd, (int) num >> get_interval(reg->get(buf.rs2), 0, 4));
         break;
     case OR:
-//        num = reg->get(buf.rs1) | reg->get(buf.rs2);
-//        reg->set(buf.rd, num);
         break;
     case AND:
-//        num = reg->get(buf.rs1) & reg->get(buf.rs2);
-//        reg->set(buf.rd, num);
         break;
     default: break;
     }
-//    reg->add_pc(4);
 }
 
 void WB::execute(MemoryController* mem, RegisterController* reg, bool &flag)
@@ -359,65 +318,84 @@ void WB::execute(MemoryController* mem, RegisterController* reg, bool &flag)
     switch (buf.type) {
     case LUI:
         reg->set_up20(buf.rd, buf.imm);
+        reg->lock_off(buf.rd);
         break;
     case AUIPC:
 //        num = buf.npc + buf.imm;
         reg->set(buf.rd, buf.num);
+        reg->lock_off(buf.rd);
         break;
     case JAL:
         reg->set(buf.rd, buf.adr);
+        reg->lock_off(buf.rd);
         reg->add_pc(buf.imm - 4);
+        reg->lock_off_pc();
+        flag = true;
         return;
         break;
     case JALR:
         reg->set(buf.rd, buf.adr);
+        reg->lock_off(buf.rd);
 //        num = buf.imm + reg->get(buf.rs1);
 //        num ^= (num & 1);
         reg->set_pc(buf.num);
+        reg->lock_off_pc();
+        flag = true;
         return;
         break;
     case BEQ:
-        if (buf.pd) {reg->add_pc(buf.imm - 4); return;}
+        reg->lock_off_pc();
+        if (buf.pd) {reg->add_pc(buf.imm - 4); flag = true; return;}
         break;
     case BNE:
-        if (buf.pd) {reg->add_pc(buf.imm - 4); return;}
+        reg->lock_off_pc();
+        if (buf.pd) {reg->add_pc(buf.imm - 4); flag = true; return;}
         break;
     case BLT:
-        if (buf.pd) {reg->add_pc(buf.imm - 4); return;}
+        reg->lock_off_pc();
+        if (buf.pd) {reg->add_pc(buf.imm - 4); flag = true; return;}
         break;
     case BGE:
-        if (buf.pd) {reg->add_pc(buf.imm - 4); return;}
+        reg->lock_off_pc();
+        if (buf.pd) {reg->add_pc(buf.imm - 4); flag = true; return;}
         break;
     case BLTU:
-        if (buf.pd) {reg->add_pc(buf.imm - 4); return;}
+        reg->lock_off_pc();
+        if (buf.pd) {reg->add_pc(buf.imm - 4); flag = true; return;}
         break;
     case BGEU:
-        if (buf.pd) {reg->add_pc(buf.imm - 4); return;}
+        reg->lock_off_pc();
+        if (buf.pd) {reg->add_pc(buf.imm - 4); flag = true; return;}
         break;
     case LB:
 //        adr = reg->get(buf.rs1) + buf.imm;
 //        num = mem->read_8(adr);
         reg->set(buf.rd, buf.num);
+        reg->lock_off(buf.rd);
         break;
     case LH:
 //        adr = reg->get(buf.rs1) + buf.imm;
 //        num = mem->read_16(adr);
         reg->set(buf.rd, buf.num);
+        reg->lock_off(buf.rd);
         break;
     case LW:
 //        adr = reg->get(buf.rs1) + buf.imm;
 //        num = mem->read(adr);
         reg->set(buf.rd, buf.num);
+        reg->lock_off(buf.rd);
         break;
     case LBU:
 //        adr = reg->get(buf.rs1) + buf.imm;
 //        num = mem->read_8u(adr);
         reg->set(buf.rd, buf.num);
+        reg->lock_off(buf.rd);
         break;
     case LHU:
 //        adr = reg->get(buf.rs1) + buf.imm;
 //        num = mem->read_16u(adr);
         reg->set(buf.rd, buf.num);
+        reg->lock_off(buf.rd);
         break;
     case SB:
 //        adr = reg->get(buf.rs1) + buf.imm;
@@ -437,77 +415,100 @@ void WB::execute(MemoryController* mem, RegisterController* reg, bool &flag)
     case ADDI:
 //        num = reg->get(buf.rs1);
         reg->set(buf.rd, buf.num + buf.imm);
+        reg->lock_off(buf.rd);
         break;
     case SLTI:
 //        num = reg->get(buf.rs1);
         reg->set(buf.rd, buf.num);
+        reg->lock_off(buf.rd);
         break;
     case SLTIU:
 //        num = reg->get(buf.rs1);
         reg->set(buf.rd, buf.num);
+        reg->lock_off(buf.rd);
         break;
     case XORI:
 //        num = reg->get(buf.rs1);
         reg->set(buf.rd, buf.num);
+        reg->lock_off(buf.rd);
         break;
     case ORI:
 //        num = reg->get(buf.rs1);
         reg->set(buf.rd, buf.num);
+        reg->lock_off(buf.rd);
         break;
     case ANDI:
 //        num = reg->get(buf.rs1);
         reg->set(buf.rd, buf.num);
+        reg->lock_off(buf.rd);
         break;
     case SLLI:
 //        num = reg->get(buf.rs1);
         reg->set(buf.rd, buf.num);
+        reg->lock_off(buf.rd);
         break;
     case SRLI:
 //        num = reg->get(buf.rs1);
         reg->set(buf.rd, buf.num);
+        reg->lock_off(buf.rd);
         break;
     case SRAI:
 //        num = reg->get(buf.rs1);
         reg->set(buf.rd, buf.num);
+        reg->lock_off(buf.rd);
         break;
     case ADD:
 //        num = reg->get(buf.rs1) + reg->get(buf.rs2);
         reg->set(buf.rd, buf.num);
+        reg->lock_off(buf.rd);
         break;
     case SUB:
 //        num = reg->get(buf.rs1) - reg->get(buf.rs2);
         reg->set(buf.rd, buf.num);
+        reg->lock_off(buf.rd);
         break;
     case SLL:
 //        num = reg->get(buf.rs1);
         reg->set(buf.rd, buf.num);
+        reg->lock_off(buf.rd);
         break;
     case SLT:
         reg->set(buf.rd, buf.num);
+        reg->lock_off(buf.rd);
         break;
     case SLTU:
         reg->set(buf.rd, buf.num);
+        reg->lock_off(buf.rd);
         break;
     case XOR:
 //        num = reg->get(buf.rs1) ^ reg->get(buf.rs2);
         reg->set(buf.rd, buf.num);
+        reg->lock_off(buf.rd);
         break;
     case SRL:
 //        num = reg->get(buf.rs1);
         reg->set(buf.rd, buf.num);
+        reg->lock_off(buf.rd);
         break;
     case SRA:
 //        num = reg->get(buf.rs1);
         reg->set(buf.rd, buf.num);
+        reg->lock_off(buf.rd);
         break;
     case OR:
 //        num = reg->get(buf.rs1) | reg->get(buf.rs2);
         reg->set(buf.rd, buf.num);
+        reg->lock_off(buf.rd);
         break;
     case AND:
 //        num = reg->get(buf.rs1) & reg->get(buf.rs2);
         reg->set(buf.rd, buf.num);
+        reg->lock_off(buf.rd);
         break;
     default: break;
     }
+}
+
+void Stage::reset() {
+    buf.reset();
 }

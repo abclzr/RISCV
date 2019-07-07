@@ -283,7 +283,14 @@ Instruction& Instruction::operator=(const Instruction& other)
 
 void Instruction::reset()
 {
-    memset(this, 0, sizeof(Instruction));
+    ins = 0;
+    type = INVALID;
+    opcode = 0;
+    rd = 0;
+    rs1 = 0;
+    rs2 = 0;
+    imm = 0;
+    shamt = 0;
 }
 
 uint32_t get_interval(uint32_t i, int l, int r)

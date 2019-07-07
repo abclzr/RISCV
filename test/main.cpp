@@ -71,6 +71,41 @@ int main() {
     }
     */
 
+    bool need_jump;
+    bool need_pause;
+    while (true) {
+        need_jump = false;
+        s5.execute(&mem, &reg, need_jump);
+        s5.reset();
+        if (need_jump) {
+            s4.reset();
+            s3.reset();
+            s2.reset();
+            s1.reset();
+            continue;
+        }
+
+        need_pause = false;
+
+        s4.execute(&mem, &reg, need_pause);
+        if (need_pause) continue;
+        s5.buf = s4.buf; s4.reset();
+
+        s3.execute(&mem, &reg, need_pause);
+        if (need_pause) continue;
+        s4.buf = s3.buf; s3.reset();
+
+        s2.execute(&mem, &reg, need_pause);
+        if (need_pause) continue;
+        s3.buf = s2.buf; s2.reset();
+
+        s1.execute(&mem, &reg, need_pause);
+        if (need_pause) continue;
+        s2.buf = s1.buf; s1.reset();
+
+        if (s2.buf.ins == 0x00c68223) break;
+    }
+
     printf("%d\n", reg.get(10) & (1 << 8) - 1);
 
     return 0;

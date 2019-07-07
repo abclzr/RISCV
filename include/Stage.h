@@ -11,6 +11,8 @@ class Stage {
 public:
     buffer buf;
 
+    void reset();
+
     virtual void execute(MemoryController *, RegisterController *, bool &) = 0;
 };
 

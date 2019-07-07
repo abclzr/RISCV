@@ -48,3 +48,32 @@ uint32_t RegisterController::get_pc()
 {
     return pc.get();
 }
+
+RegisterController::RegisterController() {
+    memset(lock, 0, sizeof(lock));
+    lock_pc = 0;
+}
+
+void RegisterController::lock_on(reg_address id) {
+    ++lock[id];
+}
+
+void RegisterController::lock_off(reg_address id) {
+    --lock[id];
+}
+
+void RegisterController::lock_on_pc() {
+    ++lock_pc;
+}
+
+void RegisterController::lock_off_pc() {
+    --lock_pc;
+}
+
+bool RegisterController::is_lock(reg_address id) {
+    return lock[id] != 0;
+}
+
+bool RegisterController::is_lock_pc() {
+    return lock_pc != 0;
+}
