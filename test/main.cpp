@@ -4,6 +4,7 @@
 #include "RegisterController.h"
 #include <stdexcept>
 #include "Stage.h"
+#include <iomanip>
 
 char s[1000003];
 
@@ -22,10 +23,70 @@ uint32_t get_hex(char *c, int len)
     return ret;
 }
 
-int main() {
-    MemoryController mem;
-    RegisterController reg;
+IF s1;
+ID s2;
+EX s3;
+MEM s4;
+WB s5;
 
+bool stop_IF;
+bool need_jump;
+bool need_pause;
+
+MemoryController mem;
+RegisterController reg;
+
+bool flow() {
+    if (s1.buf.type == INVALID && s2.buf.type == INVALID
+    && s3.buf.type == INVALID && s4.buf.type == INVALID
+    && s5.buf.type == INVALID && stop_IF) return false;
+
+    if (false) {
+        std::cout << std::hex << std::setw(10) << s1.buf.ins;
+        std::cout << std::hex << std::setw(10) << s2.buf.ins;
+        std::cout << std::hex << std::setw(10) << s3.buf.ins;
+        std::cout << std::hex << std::setw(10) << s4.buf.ins;
+        std::cout << std::hex << std::setw(10) << s5.buf.ins << std::endl;
+    }
+    need_jump = false;
+    s5.execute(&mem, &reg, need_jump);
+    s5.reset();
+    if (need_jump) {
+        s4.reset();
+        s3.reset();
+        s2.reset();
+        s1.reset();
+        stop_IF = false;
+        reg.unlock_all();
+        return true;
+    }
+
+    need_pause = false;
+
+    s4.execute(&mem, &reg, need_pause);
+    if (need_pause) return true;
+    s5.buf = s4.buf; s4.reset();
+
+    s3.execute(&mem, &reg, need_pause);
+    if (need_pause) return true;
+    s4.buf = s3.buf; s3.reset();
+
+    s2.execute(&mem, &reg, need_pause);
+    if (need_pause) return true;
+    s3.buf = s2.buf; s2.reset();
+
+    if (stop_IF) return true;
+
+    s1.execute(&mem, &reg, need_pause);
+    if (need_pause) return true;
+    s2.buf = s1.buf; s1.reset();
+
+    if (s2.buf.ins == 0x00c68223) stop_IF = true, s2.reset();
+
+    return true;
+}
+
+int main() {
     uint32_t tmp = 0;
 
     while (~scanf("%s", s)) {
@@ -41,70 +102,9 @@ int main() {
         }
     }
 
-    IF s1;
-    ID s2;
-    EX s3;
-    MEM s4;
-    WB s5;
-    /*
-    tmp = 0;
-    while (true) {
-        Instruction ins(mem.read(tmp));
-        if (ins.ins == 0x00c68223) break;
-        ins.execute(&mem, &reg);
-        tmp = reg.get_pc();
-    }
-     */
+    s1.reset(); s2.reset(); s3.reset(); s4.reset(); s5.reset(); stop_IF = false;
 
-    /*
-    while (true) {
-        s1.execute(&mem, &reg);
-        if (s1.buf.ins == 0x00c68223) break;
-        s2.buf = s1.buf;
-        s2.execute(&mem, &reg);
-        s3.buf = s2.buf;
-        s3.execute(&mem, &reg);
-        s4.buf = s3.buf;
-        s4.execute(&mem, &reg);
-        s5.buf = s4.buf;
-        s5.execute(&mem, &reg);
-    }
-    */
-
-    bool need_jump;
-    bool need_pause;
-    while (true) {
-        need_jump = false;
-        s5.execute(&mem, &reg, need_jump);
-        s5.reset();
-        if (need_jump) {
-            s4.reset();
-            s3.reset();
-            s2.reset();
-            s1.reset();
-            continue;
-        }
-
-        need_pause = false;
-
-        s4.execute(&mem, &reg, need_pause);
-        if (need_pause) continue;
-        s5.buf = s4.buf; s4.reset();
-
-        s3.execute(&mem, &reg, need_pause);
-        if (need_pause) continue;
-        s4.buf = s3.buf; s3.reset();
-
-        s2.execute(&mem, &reg, need_pause);
-        if (need_pause) continue;
-        s3.buf = s2.buf; s2.reset();
-
-        s1.execute(&mem, &reg, need_pause);
-        if (need_pause) continue;
-        s2.buf = s1.buf; s1.reset();
-
-        if (s2.buf.ins == 0x00c68223) break;
-    }
+    while (flow());
 
     printf("%d\n", reg.get(10) & (1 << 8) - 1);
 

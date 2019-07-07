@@ -77,3 +77,8 @@ bool RegisterController::is_lock(reg_address id) {
 bool RegisterController::is_lock_pc() {
     return lock_pc != 0;
 }
+
+void RegisterController::unlock_all() {
+    memset(lock, 0, sizeof(lock));
+    lock_pc = 0;
+}

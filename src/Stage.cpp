@@ -10,7 +10,7 @@ void IF::execute(MemoryController* mem, RegisterController* reg, bool &flag)
     buf.reset();
     buf.ins = mem->read(npc);
     buf.npc = npc;
-    reg->add_pc(4);
+    reg->set_pc(buf.npc + 4);
 }
 
 void ID::execute(MemoryController* mem, RegisterController* reg, bool &flag)
@@ -328,7 +328,7 @@ void WB::execute(MemoryController* mem, RegisterController* reg, bool &flag)
     case JAL:
         reg->set(buf.rd, buf.adr);
         reg->lock_off(buf.rd);
-        reg->add_pc(buf.imm - 4);
+        reg->set_pc(buf.npc + buf.imm);
         reg->lock_off_pc();
         flag = true;
         return;
@@ -345,27 +345,27 @@ void WB::execute(MemoryController* mem, RegisterController* reg, bool &flag)
         break;
     case BEQ:
         reg->lock_off_pc();
-        if (buf.pd) {reg->add_pc(buf.imm - 4); flag = true; return;}
+        if (buf.pd) {reg->set_pc(buf.npc + buf.imm); flag = true; return;}
         break;
     case BNE:
         reg->lock_off_pc();
-        if (buf.pd) {reg->add_pc(buf.imm - 4); flag = true; return;}
+        if (buf.pd) {reg->set_pc(buf.npc + buf.imm); flag = true; return;}
         break;
     case BLT:
         reg->lock_off_pc();
-        if (buf.pd) {reg->add_pc(buf.imm - 4); flag = true; return;}
+        if (buf.pd) {reg->set_pc(buf.npc + buf.imm); flag = true; return;}
         break;
     case BGE:
         reg->lock_off_pc();
-        if (buf.pd) {reg->add_pc(buf.imm - 4); flag = true; return;}
+        if (buf.pd) {reg->set_pc(buf.npc + buf.imm); flag = true; return;}
         break;
     case BLTU:
         reg->lock_off_pc();
-        if (buf.pd) {reg->add_pc(buf.imm - 4); flag = true; return;}
+        if (buf.pd) {reg->set_pc(buf.npc + buf.imm); flag = true; return;}
         break;
     case BGEU:
         reg->lock_off_pc();
-        if (buf.pd) {reg->add_pc(buf.imm - 4); flag = true; return;}
+        if (buf.pd) {reg->set_pc(buf.npc + buf.imm); flag = true; return;}
         break;
     case LB:
 //        adr = reg->get(buf.rs1) + buf.imm;

@@ -31,6 +31,7 @@ public:
     void lock_on_pc();
     void lock_off_pc();
 
+    void unlock_all();
     bool is_lock(reg_address);
     bool is_lock_pc();
 };
