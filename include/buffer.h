@@ -13,6 +13,8 @@ public:
     uint32_t adr;
     mem_address npc;
     bool pd;
+    uint32_t R1;
+    uint32_t R2;
 
     buffer();
 

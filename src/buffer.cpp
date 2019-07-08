@@ -9,6 +9,8 @@ buffer::buffer() : Instruction()
     adr = 0;
     pd = false;
     npc = 0;
+    R1 = 0;
+    R2 = 0;
 }
 buffer& buffer::operator=(const buffer& other)
 {
@@ -18,6 +20,8 @@ buffer& buffer::operator=(const buffer& other)
     adr = other.adr;
     pd = other.pd;
     npc = other.npc;
+    R1 = other.R1;
+    R2 = other.R2;
     return *this;
 }
 
@@ -28,4 +32,6 @@ void buffer::reset()
     adr = 0;
     pd = false;
     npc = 0;
+    R1 = 0;
+    R2 = 0;
 }

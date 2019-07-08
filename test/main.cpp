@@ -48,6 +48,7 @@ bool flow() {
         std::cout << std::hex << std::setw(10) << s4.buf.ins;
         std::cout << std::hex << std::setw(10) << s5.buf.ins << std::endl;
     }
+
     need_jump = false;
     s5.execute(&mem, &reg, need_jump);
     s5.reset();
