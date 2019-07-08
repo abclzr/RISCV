@@ -353,30 +353,22 @@ void EX::execute(MemoryController* mem, RegisterController* reg, bool &flag)
     }
 }
 
+bool Stage::pd_MEM(InstructionType t) {
+    return t == LB || t == LH || t == LW || t == LBU || t == LHU
+    || t == SB || t == SH || t == SW;
+}
+
 void MEM::execute(MemoryController* mem, RegisterController* reg, bool &flag)
 {
-    if (buf.type == INVALID) return;
+    if (!pd_MEM(buf.type)) return;
+    if (buf.pause_time == 0) {
+        buf.pause_time = 3; flag = true; return;
+    } else if (buf.pause_time > 1) {
+        --buf.pause_time; flag = true; return;
+    } else {
+        buf.pause_time = 0;
+    }
     switch (buf.type) {
-    case LUI:
-        break;
-    case AUIPC:
-        break;
-    case JAL:
-        break;
-    case JALR:
-        break;
-    case BEQ:
-        break;
-    case BNE:
-        break;
-    case BLT:
-        break;
-    case BGE:
-        break;
-    case BLTU:
-        break;
-    case BGEU:
-        break;
     case LB:
         buf.num = mem->read_8(buf.adr);
         break;
@@ -400,44 +392,6 @@ void MEM::execute(MemoryController* mem, RegisterController* reg, bool &flag)
         break;
     case SW:
         mem->write(buf.adr, buf.num);
-        break;
-    case ADDI:
-        break;
-    case SLTI:
-        break;
-    case SLTIU:
-        break;
-    case XORI:
-        break;
-    case ORI:
-        break;
-    case ANDI:
-        break;
-    case SLLI:
-        break;
-    case SRLI:
-        break;
-    case SRAI:
-        break;
-    case ADD:
-        break;
-    case SUB:
-        break;
-    case SLL:
-        break;
-    case SLT:
-        break;
-    case SLTU:
-        break;
-    case XOR:
-        break;
-    case SRL:
-        break;
-    case SRA:
-        break;
-    case OR:
-        break;
-    case AND:
         break;
     default: break;
     }

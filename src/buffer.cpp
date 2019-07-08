@@ -11,6 +11,7 @@ buffer::buffer() : Instruction()
     npc = 0;
     R1 = 0;
     R2 = 0;
+    pause_time = 0;
 }
 buffer& buffer::operator=(const buffer& other)
 {
@@ -22,6 +23,7 @@ buffer& buffer::operator=(const buffer& other)
     npc = other.npc;
     R1 = other.R1;
     R2 = other.R2;
+    pause_time = other.pause_time;
     return *this;
 }
 
@@ -34,4 +36,5 @@ void buffer::reset()
     npc = 0;
     R1 = 0;
     R2 = 0;
+    pause_time = 0;
 }

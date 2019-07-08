@@ -47,6 +47,11 @@ bool flow() {
         std::cout << std::hex << std::setw(10) << s3.buf.ins;
         std::cout << std::hex << std::setw(10) << s4.buf.ins;
         std::cout << std::hex << std::setw(10) << s5.buf.ins << std::endl;
+//        std::cout << stop_IF << std:: endl;
+    }
+
+    if (s2.buf.ins == 1010113) {
+        1;
     }
 
     need_jump = false;
@@ -62,9 +67,8 @@ bool flow() {
         return true;
     }
 
-    need_pause = false;
-
     if (s5.buf.type == INVALID) {
+        need_pause = false;
         s4.execute(&mem, &reg, need_pause);
         if (need_pause) ;
         else {
@@ -74,6 +78,7 @@ bool flow() {
     }
 
     if (s4.buf.type == INVALID) {
+        need_pause = false;
         s3.execute(&mem, &reg, need_pause);
         if (need_pause) ;
         else {
@@ -83,6 +88,7 @@ bool flow() {
     }
 
     if (s3.buf.type == INVALID) {
+        need_pause = false;
         s2.execute(&mem, &reg, need_pause);
         if (need_pause) ;
         else {
@@ -93,7 +99,8 @@ bool flow() {
 
     if (stop_IF) return true;
 
-    if (s2.buf.type == INVALID) {
+    if (s2.buf.ins == 0) {
+        need_pause = false;
         s1.execute(&mem, &reg, need_pause);
         if (need_pause) ;
         else {

@@ -15,6 +15,7 @@ public:
     bool pd;
     uint32_t R1;
     uint32_t R2;
+    uint8_t pause_time;
 
     buffer();
 
