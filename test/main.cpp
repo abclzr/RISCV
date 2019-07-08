@@ -64,23 +64,43 @@ bool flow() {
 
     need_pause = false;
 
-    s4.execute(&mem, &reg, need_pause);
-    if (need_pause) return true;
-    s5.buf = s4.buf; s4.reset();
+    if (s5.buf.type == INVALID) {
+        s4.execute(&mem, &reg, need_pause);
+        if (need_pause) ;
+        else {
+            s5.buf = s4.buf;
+            s4.reset();
+        }
+    }
 
-    s3.execute(&mem, &reg, need_pause);
-    if (need_pause) return true;
-    s4.buf = s3.buf; s3.reset();
+    if (s4.buf.type == INVALID) {
+        s3.execute(&mem, &reg, need_pause);
+        if (need_pause) ;
+        else {
+            s4.buf = s3.buf;
+            s3.reset();
+        }
+    }
 
-    s2.execute(&mem, &reg, need_pause);
-    if (need_pause) return true;
-    s3.buf = s2.buf; s2.reset();
+    if (s3.buf.type == INVALID) {
+        s2.execute(&mem, &reg, need_pause);
+        if (need_pause) ;
+        else {
+            s3.buf = s2.buf;
+            s2.reset();
+        }
+    }
 
     if (stop_IF) return true;
 
-    s1.execute(&mem, &reg, need_pause);
-    if (need_pause) return true;
-    s2.buf = s1.buf; s1.reset();
+    if (s2.buf.type == INVALID) {
+        s1.execute(&mem, &reg, need_pause);
+        if (need_pause) ;
+        else {
+            s2.buf = s1.buf;
+            s1.reset();
+        }
+    }
 
     if (s2.buf.ins == 0x00c68223) stop_IF = true, s2.reset();
 
@@ -88,6 +108,7 @@ bool flow() {
 }
 
 int main() {
+//    freopen("naive.data", "r", stdin);
     uint32_t tmp = 0;
 
     while (~scanf("%s", s)) {
