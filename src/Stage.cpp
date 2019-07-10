@@ -25,50 +25,33 @@ void ID::execute(MemoryController* mem, RegisterController* reg, bool &flag)
         reg->lock_on(buf.rd);
         break;
     case JAL:
+        buf.adr = buf.npc + 4;
         reg->lock_on(buf.rd);
         reg->lock_on_pc();
+        reg->set_pc(buf.npc + buf.imm);
         break;
     case JALR:
         if (reg->is_lock(buf.rs1)) {flag = true; return;}
         buf.R1 = reg->get(buf.rs1);
+        buf.adr = buf.npc + 4;
+        buf.num = buf.imm + buf.R1;
+        buf.num ^= (buf.num & 1);
         reg->lock_on(buf.rd);
         reg->lock_on_pc();
+        reg->set_pc(buf.num);
         break;
     case BEQ:
-        if (reg->is_lock(buf.rs1) || reg->is_lock(buf.rs2)) {flag = true; return;}
-        buf.R1 = reg->get(buf.rs1);
-        buf.R2 = reg->get(buf.rs2);
-        reg->lock_on_pc();
-        break;
     case BNE:
-        if (reg->is_lock(buf.rs1) || reg->is_lock(buf.rs2)) {flag = true; return;}
-        buf.R1 = reg->get(buf.rs1);
-        buf.R2 = reg->get(buf.rs2);
-        reg->lock_on_pc();
-        break;
     case BLT:
-        if (reg->is_lock(buf.rs1) || reg->is_lock(buf.rs2)) {flag = true; return;}
-        buf.R1 = reg->get(buf.rs1);
-        buf.R2 = reg->get(buf.rs2);
-        reg->lock_on_pc();
-        break;
     case BGE:
-        if (reg->is_lock(buf.rs1) || reg->is_lock(buf.rs2)) {flag = true; return;}
-        buf.R1 = reg->get(buf.rs1);
-        buf.R2 = reg->get(buf.rs2);
-        reg->lock_on_pc();
-        break;
     case BLTU:
-        if (reg->is_lock(buf.rs1) || reg->is_lock(buf.rs2)) {flag = true; return;}
-        buf.R1 = reg->get(buf.rs1);
-        buf.R2 = reg->get(buf.rs2);
-        reg->lock_on_pc();
-        break;
     case BGEU:
         if (reg->is_lock(buf.rs1) || reg->is_lock(buf.rs2)) {flag = true; return;}
         buf.R1 = reg->get(buf.rs1);
         buf.R2 = reg->get(buf.rs2);
         reg->lock_on_pc();
+        if (mem->j0[buf.npc])
+            reg->set_pc(buf.npc + buf.imm);
         break;
     case LB:
         if (reg->is_lock(buf.rs1)) {flag = true; return;}
@@ -229,12 +212,8 @@ void EX::execute(MemoryController* mem, RegisterController* reg, bool &flag)
         buf.num = buf.npc + buf.imm;
         break;
     case JAL:
-        buf.adr = buf.npc + 4;
         break;
     case JALR:
-        buf.adr = buf.npc + 4;
-        buf.num = buf.imm + buf.R1;
-        buf.num ^= (buf.num & 1);
         break;
     case BEQ:
         buf.pd = (buf.R1 == buf.R2);
@@ -413,44 +392,31 @@ void WB::execute(MemoryController* mem, RegisterController* reg, bool &flag)
     case JAL:
         reg->set(buf.rd, buf.adr);
         reg->lock_off(buf.rd);
-        reg->set_pc(buf.npc + buf.imm);
         reg->lock_off_pc();
-        flag = true;
-        return;
         break;
     case JALR:
         reg->set(buf.rd, buf.adr);
         reg->lock_off(buf.rd);
-//        num = buf.imm + reg->get(buf.rs1);
-//        num ^= (num & 1);
-        reg->set_pc(buf.num);
         reg->lock_off_pc();
-        flag = true;
-        return;
         break;
     case BEQ:
-        reg->lock_off_pc();
-        if (buf.pd) {reg->set_pc(buf.npc + buf.imm); flag = true; return;}
-        break;
     case BNE:
-        reg->lock_off_pc();
-        if (buf.pd) {reg->set_pc(buf.npc + buf.imm); flag = true; return;}
-        break;
     case BLT:
-        reg->lock_off_pc();
-        if (buf.pd) {reg->set_pc(buf.npc + buf.imm); flag = true; return;}
-        break;
     case BGE:
-        reg->lock_off_pc();
-        if (buf.pd) {reg->set_pc(buf.npc + buf.imm); flag = true; return;}
-        break;
     case BLTU:
-        reg->lock_off_pc();
-        if (buf.pd) {reg->set_pc(buf.npc + buf.imm); flag = true; return;}
-        break;
     case BGEU:
         reg->lock_off_pc();
-        if (buf.pd) {reg->set_pc(buf.npc + buf.imm); flag = true; return;}
+        if (buf.pd) {
+            flag = !mem->j0[buf.npc];
+            if (flag) reg->set_pc(buf.npc + buf.imm);
+            mem->j0[buf.npc] = mem->j1[buf.npc];
+            mem->j1[buf.npc] = true;
+        } else {
+            flag = mem->j0[buf.npc];
+            if (flag) reg->set_pc(buf.npc + 4);
+            mem->j0[buf.npc] = mem->j1[buf.npc];
+            mem->j1[buf.npc] = false;
+        }
         break;
     case LB:
 //        adr = reg->get(buf.rs1) + buf.imm;

@@ -50,10 +50,6 @@ bool flow() {
 //        std::cout << stop_IF << std:: endl;
     }
 
-    if (s2.buf.ins == 1010113) {
-        1;
-    }
-
     need_jump = false;
     s5.execute(&mem, &reg, need_jump);
     s5.reset();
@@ -115,7 +111,6 @@ bool flow() {
 }
 
 int main() {
-//    freopen("naive.data", "r", stdin);
     uint32_t tmp = 0;
 
     while (~scanf("%s", s)) {

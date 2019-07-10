@@ -6,12 +6,15 @@
 #define RISCV_MEMORYCONTROLLER_H
 
 #include "configure.h"
+#include <bitset>
 
 class MemoryController {
 private:
     uint8_t mem[MAX_ADDRESS];
 
 public:
+    std::bitset<MAX_ADDRESS> j0, j1;
+
     MemoryController();
 
     uint32_t read(mem_address);
